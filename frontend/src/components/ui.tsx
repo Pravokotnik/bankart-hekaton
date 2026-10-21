@@ -23,6 +23,14 @@ const ICONS: Record<string, ReactNode> = {
   chevron: <path d="M9 6l6 6-6 6" />,
   trash: <path d="M5 7h14M10 7V5h4v2M7 7l1 13h8l1-13" />,
   plus: <path d="M12 5v14M5 12h14" />,
+  camera: (
+    <>
+      <path d="M4 8h3l2-3h6l2 3h3v11H4z" />
+      <circle cx="12" cy="13" r="3.5" />
+    </>
+  ),
+  edit: <path d="M4 20h4L19 9l-4-4L4 16v4zM13 7l4 4" />,
+  phone: <path d="M6 3h4l2 5-3 2a11 11 0 005 5l2-3 5 2v4a2 2 0 01-2 2A17 17 0 014 5a2 2 0 012-2z" />,
   refresh: <path d="M20 11a8 8 0 00-14.5-4.5L4 8M4 4v4h4M4 13a8 8 0 0014.5 4.5L20 16M20 20v-4h-4" />,
   user: (
     <>
@@ -71,15 +79,6 @@ export function FlikMark({ size = 22 }: { size?: number }) {
       <circle cx="12" cy="12" r="10.5" fill="none" stroke="currentColor" strokeWidth="1.8" />
       <text x="12" y="15" textAnchor="middle" fontSize="7" fontFamily="Roboto Mono, monospace" fill="currentColor">flik</text>
     </svg>
-  )
-}
-
-export function StatusBar() {
-  return (
-    <div className="statusbar">
-      <span>19:30</span>
-      <span>5G ▮▮▮ 65%</span>
-    </div>
   )
 }
 

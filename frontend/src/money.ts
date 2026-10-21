@@ -48,6 +48,8 @@ export function toPieces(lines: Line[]): Piece[] {
 
 export function initials(name: string): string {
   if (name === 'Jaz') return 'JAZ'
+  // Oseba, dodana samo s telefonsko številko: zadnji dve števki.
+  if (/^[+\d]/.test(name)) return name.replace(/\D/g, '').slice(-2)
   return name
     .split(/\s+/)
     .map((w) => w[0])

@@ -66,6 +66,7 @@ const json = (body: unknown): RequestInit => ({
 export const api = {
   status: () => call<{ api_key: boolean }>('/api/status'),
   contacts: () => call<Contact[]>('/api/contacts'),
+  addContact: (phone: string) => call<Contact>('/api/contacts', json({ phone })),
   parseReceipt: (file: File) => {
     const form = new FormData()
     form.append('image', file)

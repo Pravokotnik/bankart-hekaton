@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { api, type Assignments, type BillPayload, type Contact, type FlikRequest } from './api'
-import { BottomNav, StatusBar, type Tab } from './components/ui'
+import { BottomNav, type Tab } from './components/ui'
 import { toLines, toPieces, type Line } from './money'
 import { Assign } from './screens/Assign'
 import { Group } from './screens/Group'
@@ -20,7 +20,7 @@ export default function App() {
   const [step, setStep] = useState<Step | null>(null)
   const [contacts, setContacts] = useState<Contact[]>([])
   const [lines, setLines] = useState<Line[]>([])
-  const [totalCents, setTotalCents] = useState(0)
+  const [totalCents, setTotalCents] = useState<number | null>(null)
   const [participants, setParticipants] = useState<string[]>([])
   const [assignments, setAssignments] = useState<Assignments>({})
   const [sent, setSent] = useState<FlikRequest[]>([])
@@ -55,6 +55,11 @@ export default function App() {
     content = (
       <Scan
         onBack={() => setStep(null)}
+        onManual={() => {
+          setLines([])
+          setTotalCents(null)
+          setStep('review')
+        }}
         onRead={(r) => {
           setLines(toLines(r.items))
           setTotalCents(r.total_cents)
@@ -81,6 +86,7 @@ export default function App() {
         contacts={contacts}
         selected={participants}
         onBack={() => setStep('review')}
+        onAddContact={(c) => setContacts((cs) => (cs.some((x) => x.id === c.id) ? cs : [...cs, c]))}
         onNext={(ids) => {
           // Dodelitve odstranjenih oseb zavržemo.
           setAssignments((a) =>
@@ -129,7 +135,6 @@ export default function App() {
 
   return (
     <main className="phone">
-      <StatusBar />
       {content}
       {!step && !isReceiver && <BottomNav tab={tab} onTab={setTab} />}
     </main>

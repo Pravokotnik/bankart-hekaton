@@ -1,5 +1,5 @@
 import { Fragment, useState } from 'react'
-import { PAYER, type Contact } from '../api'
+import { api, PAYER, type Contact } from '../api'
 import { Avatar, Icon, TopBar } from '../components/ui'
 
 function people(n: number) {
@@ -22,17 +22,46 @@ export function Group({
   contacts,
   selected,
   onBack,
+  onAddContact,
   onNext,
 }: {
   contacts: Contact[]
   selected: string[]
   onBack: () => void
+  onAddContact: (c: Contact) => void
   onNext: (ids: string[]) => void
 }) {
   const [chosen, setChosen] = useState<Set<string>>(() => new Set(selected.filter((id) => id !== PAYER)))
   const [query, setQuery] = useState('')
   const others = contacts.filter((c) => c.id !== PAYER)
-  const shown = others.filter((c) => c.name.toLowerCase().includes(query.toLowerCase()) || c.phone.replace(/\s/g, '').includes(query.replace(/\s/g, '')))
+  // Številka se ujema ne glede na zapis (031 …, +386 31 …).
+  const localDigits = (t: string) => t.replace(/\D/g, '').replace(/^(00)?386|^0/, '')
+  const shown = others.filter((c) =>
+    c.name.toLowerCase().includes(query.toLowerCase()) ||
+    (localDigits(query).length >= 3 && localDigits(c.phone).includes(localDigits(query))))
+
+  const [adding, setAdding] = useState(false)
+  const [addError, setAddError] = useState<string | null>(null)
+  // Iskalni niz, ki je videti kot telefonska številka in je ni v imeniku.
+  const digits = query.replace(/[^\d+]/g, '')
+  const looksLikePhone = /^\+?\d{8,15}$/.test(digits) && /^[\d+\s\-/()]+$/.test(query.trim())
+  const known = others.some((c) => localDigits(c.phone) === localDigits(query))
+  const offerPhone = looksLikePhone && !known
+
+  async function addPhone() {
+    setAdding(true)
+    setAddError(null)
+    try {
+      const contact = await api.addContact(query)
+      onAddContact(contact)
+      setChosen((s) => new Set(s).add(contact.id))
+      setQuery('')
+    } catch (e) {
+      setAddError((e as Error).message)
+    } finally {
+      setAdding(false)
+    }
+  }
 
   const toggle = (id: string) =>
     setChosen((s) => {
@@ -48,9 +77,22 @@ export function Group({
         <TopBar title="Kdo je bil zraven?" onBack={onBack} subtitle="Izberi kontakte. Ti si vedno v skupini." />
         <label className="search">
           <Icon name="search" size={20} />
-          <input placeholder="Poišči kontakt …" value={query} onChange={(e) => setQuery(e.target.value)} />
+          <input placeholder="Poišči kontakt ali vpiši številko …" inputMode="search" value={query} onChange={(e) => setQuery(e.target.value)} />
         </label>
-        {shown.length === 0 && <p className="hint">Ni zadetkov.</p>}
+        {offerPhone ? (
+          <button className="row list add-phone" onClick={addPhone} disabled={adding}>
+            <span className="set-icon" style={{ color: 'var(--green-bright)' }}><Icon name="phone" size={20} /></span>
+            <div className="row-main">
+              <div className="row-name">Dodaj številko {query.trim()}</div>
+              <div className="row-sub">Osebe ni v imeniku. Zahtevek dobi prek Flika na to številko.</div>
+            </div>
+            <Icon name="plus" size={20} />
+          </button>
+        ) : (
+          query === '' && <p className="hint" style={{ margin: '-6px 0 0', textAlign: 'left' }}>Izberi iz imenika ali vpiši telefonsko številko.</p>
+        )}
+        {addError && <div className="error">{addError}</div>}
+        {shown.length === 0 && !offerPhone && <p className="hint">Ni zadetkov. Vpiši celo telefonsko številko, da osebo dodaš.</p>}
         {letters(shown).map(([letter, group]) => (
           <Fragment key={letter}>
             <div className="letter">{letter}</div>

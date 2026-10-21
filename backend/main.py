@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 import os
 import uuid
 from datetime import datetime
@@ -49,6 +50,44 @@ def _receipt_response(parsed: dict, source: str) -> dict:
 @app.get("/api/contacts")
 def contacts():
     return CONTACTS
+
+
+class NewContact(BaseModel):
+    phone: str
+
+
+def _normalize_phone(raw: str) -> str | None:
+    """'031 234 567', '+386 31 234 567', '00386...' -> '+38631234567'; None, če ni številka."""
+    digits = re.sub(r"[\s\-/()]", "", raw)
+    if digits.startswith("00"):
+        digits = "+" + digits[2:]
+    elif digits.startswith("0"):
+        digits = "+386" + digits[1:]
+    elif not digits.startswith("+"):
+        digits = "+386" + digits
+    return digits if re.fullmatch(r"\+\d{8,15}", digits) else None
+
+
+def _format_phone(phone: str) -> str:
+    if phone.startswith("+386") and len(phone) == 12:
+        return f"+386 {phone[4:6]} {phone[6:9]} {phone[9:]}"
+    return phone
+
+
+@app.post("/api/contacts")
+def contacts_add(body: NewContact):
+    """Doda osebo, ki je ni v imeniku, samo prek telefonske številke."""
+    phone = _normalize_phone(body.phone)
+    if phone is None:
+        raise HTTPException(400, "To ni veljavna telefonska številka.")
+    contact_id = f"tel{phone}"
+    if contact_id not in CONTACTS_BY_ID:
+        local = "0" + phone[4:] if phone.startswith("+386") else phone
+        name = f"{local[:3]} {local[3:6]} {local[6:]}" if len(local) == 9 else local
+        contact = {"id": contact_id, "name": name, "phone": _format_phone(phone), "color": "#ff7a8a"}
+        CONTACTS.append(contact)
+        CONTACTS_BY_ID[contact_id] = contact
+    return CONTACTS_BY_ID[contact_id]
 
 
 @app.get("/api/status")
