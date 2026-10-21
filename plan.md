@@ -46,7 +46,7 @@ Posledice: izgubljen čas, napake, nerodnost („pa saj je samo 2 €…“), za
 ## 2. Uporabniška izkušnja (UX tok)
 
 ```
-Domov ──► [Razdeli račun] ──► Kamera / naloži sliko
+Domov ──► [Razdeli račun] ──► Naloži sliko računa
                                    │
                                    ▼
                         Pregled prebranih postavk
@@ -72,7 +72,7 @@ Domov ──► [Razdeli račun] ──► Kamera / naloži sliko
 
 ### 2.1 Zasloni
 1. **Domov:** obstoječi Flik zaslon (Skeniraj / Pošlji / Zahtevaj) + nov gumb **Razdeli račun**.
-2. **Zajem računa:** kamera (na telefonu) ali nalaganje slike; prikaz nalaganja med branjem.
+2. **Zajem računa:** nalaganje slike računa (na računalniku); prikaz nalaganja med branjem.
 3. **Pregled postavk:** seznam `ime · cena`. Izdelki z več kosi so v eni vrstici z oznako količine (`Pivo  ×2  8,00`), ki jo lahko razširiš na posamezne kose (glej 3.4). Vsako vrstico je mogoče urediti, izbrisati ali dodati. Na dnu `Vsota postavk` proti `Skupaj na računu`; če se ne ujemata, opozorilo.
 4. **Skupina:** izbira kontaktov (kopija Flikovega zaslona „Izberi kontakt“ z iskalnikom in kljukicami). Jaz sem vedno v skupini.
 5. **Dodeljevanje (jedro):**
@@ -164,7 +164,8 @@ Assignment  { item_id, participant_id, shares }   # shares = delež (privzeto 1)
 ### 4.2 Pravila
 - Vsaka postavka ima eno ali več dodelitev. Znesek postavke se razdeli **sorazmerno z `shares`**. Privzeto ima vsak 1 delež, torej enako; opcijsko 2:1 (npr. nekdo je pojedel 2 od 3 kosov pice).
 - Postavke so že razbite na posamezne kose (glej 3.4), zato vsak kos dodelimo posebej.
-- Popust ali napitnina na ravni računa se razdeli **sorazmerno** z vsoto posameznika.
+- Popusti so na računih napisani pri posamezni postavki in so že upoštevani v `price`, zato popusta na ravni računa ne obravnavamo.
+- Napitnina (če jo dodamo, glej 7) se razdeli **sorazmerno** z vsoto posameznika.
 - **Računamo v centih (integer)**, nikoli v float. Ostanek pri deljenju (npr. 10,00 € / 3) razdelimo z metodo *največjega ostanka*, da je vsota vseh deležev **točno** enaka računu. Pravilo mora biti deterministično, npr. odvečni cent dobi plačnik.
 - Plačnik (jaz) ne dobi zahtevka; njegov delež samo prikažemo.
 
@@ -172,7 +173,7 @@ Assignment  { item_id, participant_id, shares }   # shares = delež (privzeto 1)
 - 10,00 € / 3 osebe → 3,34 + 3,33 + 3,33, vsota je 10,00,
 - postavka z deleži 2:1,
 - razbijanje `2x pivo, 8,00` → dve postavki po 4,00; `3 kosi, 10,00` → 3,34 + 3,33 + 3,33,
-- sorazmerna razdelitev popusta,
+- sorazmerna razdelitev napitnine,
 - nobena oseba ne dobi negativnega zneska; vsota zahtevkov + moj delež = `total`.
 
 ---
@@ -183,12 +184,12 @@ Assignment  { item_id, participant_id, shares }   # shares = delež (privzeto 1)
 | Del | Izbira | Zakaj |
 |---|---|---|
 | Frontend | **React + Vite + TypeScript**, Tailwind | hitro, mobilni prikaz, ekipa ga verjetno pozna |
-| Mobilnost | PWA / mobilni brskalnik, `<input type="file" accept="image/*" capture="environment">` | kamera na telefonu brez nativne aplikacije |
+| Prikaz | web app v brskalniku na računalniku, v okvirju velikosti telefona | imitira Flik aplikacijo; kasneje se lahko odpre tudi na telefonu |
 | Backend | **FastAPI (Python)** | preprost, hiter za prototip |
 | Branje računov | Claude API (vision, strukturiran izhod) | glej poglavje 3 |
 | Shramba | v pomnilniku / SQLite | za demo dovolj |
 | „Flik plačila“ | **mock**: zahtevki in transakcije v bazi, simuliran status „plačano“ | pravega Flik API-ja nimamo |
-| Deploy | Vercel (frontend) + Render/Fly.io (backend) ali vse lokalno + ngrok | demo na pravem telefonu |
+| Zagon | vse lokalno na računalniku (frontend + backend) | najpreprosteje za proof of concept; deploy po potrebi kasneje |
 
 ### 5.2 Struktura repozitorija
 ```
@@ -209,7 +210,7 @@ bankart-hekaton/
 
 ### 5.3 Videz
 - Kopiramo Flikov slog s posnetkov v `slike/flik/`: temno zeleno-siva podlaga, svetlo zeleni gumbi, zaobljene kartice, spodnja navigacija (*Domov / Transakcije / Zahtevki / Nastavitve*), krogi z inicialkami za kontakte.
-- Opomba: posnetki so iz aplikacije OTP banke, ideja pa je za NLB Flik. Flik je skupna storitev (Bankart), zato v demu uporabimo **nevtralen „Flik“ videz** brez logotipa konkretne banke ali pa logotip banke, ki jo predstavljamo.
+- Predstavljamo kot **„Flik“**, brez logotipa konkretne banke (posnetki so iz aplikacije OTP banke, Flik pa je skupna storitev Bankarta).
 - Imenik: za demo **izmišljeni kontakti** (ne pravi podatki iz telefonov).
 
 ### 5.4 API
@@ -288,7 +289,7 @@ Ker trajanje hackathona še ni določeno, plan razdelimo na **faze z jasnim MVP*
 |---|---|
 | 0:00–0:45 | **Problem:** zgodba („6 prijateljev, račun 87,40 €, 15 minut kalkulatorja“) + številke iz intervjujev |
 | 0:45–1:15 | **Rešitev** v enem stavku + zakaj v Fliku (že ga uporabljajo, plačilo je takoj) |
-| 1:15–3:30 | **Demo v živo:** slikamo pravi račun → postavke → dodamo 3 ljudi → poklikamo (vključno s skupno pico) → pošljemo → na drugem telefonu prispe zahtevek |
+| 1:15–3:30 | **Demo v živo:** naložimo sliko pravega računa → postavke → dodamo 3 ljudi → poklikamo (vključno s skupno pico) → pošljemo → v drugem oknu brskalnika (pogled prejemnika) prispe zahtevek |
 | 3:30–4:15 | **Tehnika in varnost:** arhitektura, branje računa s Claude API, deljenje v centih, zasebnost |
 | 4:15–5:00 | **Vrednost in naprej:** prihranjen čas, pravičnost, manj gotovine; naslednji koraki (deljenje v živo, integracija v pravi Flik) |
 
@@ -302,15 +303,7 @@ Ker trajanje hackathona še ni določeno, plan razdelimo na **faze z jasnim MVP*
 |---|---|
 | A | Branje računov prek Claude API, poziv, testiranje na računih |
 | B | Backend (FastAPI), `split.py` + testi, mock Flik zahtevki |
-| C | Frontend: Flik videz, zasloni, kamera |
+| C | Frontend: Flik videz, zasloni, nalaganje slike |
 | D | Raziskava uporabnikov, pitch, diapozitivi, testiranje UX |
 
 Prilagodite glede na število ljudi v ekipi in na to, kdo kaj zna.
-
----
-
-## 11. Odprta vprašanja za ekipo
-- Koliko časa traja hackathon in koliko nas je?
-- Kdo priskrbi Claude API ključ (strošek je majhen)?
-- Demo na pravem telefonu (deploy + HTTPS za kamero) ali na računalniku z nalaganjem slike?
-- Ali predstavljamo kot „NLB Flik“ ali nevtralno kot „Flik“?
