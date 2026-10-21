@@ -35,6 +35,7 @@ export function Home({ onSplit, onAll }: { onSplit: () => void; onAll: () => voi
     <div className="screen">
       <div className="home-head">
         <span className="bank">Moja banka</span>
+        <button className="icon-square" aria-label="Osveži"><Icon name="refresh" size={22} /></button>
       </div>
       <div className="flik-logo">flik</div>
       <div className="actions">

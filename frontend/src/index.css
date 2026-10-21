@@ -8,8 +8,8 @@
   --green: #6cc24a;
   --green-bright: #8ee06a;
   --green-soft: rgba(108, 194, 74, 0.22);
-  --text: #eaeef3;
-  --muted: #b3bdc4;
+  --text: #e3e7f7;
+  --muted: #b4bccb;
   --red: #ff8466;
   --amber: #f2b84b;
   --radius: 14px;
@@ -70,11 +70,15 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--green-brigh
   gap: 16px;
 }
 .screen::-webkit-scrollbar { display: none; }
+/* Brez tega se elementi v stolpcu z drsenjem stisnejo (npr. krog logotipa v elipso). */
+.screen > * { flex-shrink: 0; }
 
 .title { color: var(--green-bright); font-size: 28px; font-weight: 700; margin: 4px 0 0; }
+/* Podzasloni (Pošlji, Zahtevaj, Razdeli račun) imajo v Fliku svetel naslov. */
+.title.sub { color: var(--text); font-size: 30px; margin-top: 0; }
 .subtitle { color: var(--muted); font-size: 14px; margin: -8px 0 0; line-height: 1.4; }
 
-.topbar { display: flex; align-items: center; gap: 6px; margin-left: -8px; }
+.topbar { display: flex; align-items: center; gap: 6px; margin-left: -10px; margin-bottom: -8px; }
 .back {
   background: none; border: 0; padding: 6px 8px; display: flex; align-items: center;
   color: var(--text);
@@ -133,9 +137,10 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--green-brigh
 .home-head { display: flex; justify-content: space-between; align-items: center; }
 .bank { color: var(--green-bright); font-weight: 700; font-size: 20px; }
 .flik-logo {
-  width: 132px; height: 132px; border-radius: 50%; border: 3px solid var(--text);
-  display: flex; align-items: center; justify-content: center; margin: 8px auto 4px;
-  font-family: 'Roboto Mono', monospace; font-size: 46px; letter-spacing: -2px;
+  width: 148px; height: 148px; border-radius: 50%; border: 3.5px solid var(--text);
+  display: flex; align-items: center; justify-content: center; margin: 4px auto 8px;
+  font-family: 'Roboto Mono', monospace; font-weight: 500; font-size: 50px; letter-spacing: -3px;
+  padding-bottom: 4px;
 }
 .actions { display: flex; justify-content: center; gap: 30px; }
 .action { background: none; border: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; }
@@ -193,14 +198,15 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--green-brigh
 
 /* --- avatarji --- */
 .avatar {
-  width: 40px; height: 40px; border-radius: 12px; flex: none;
+  width: 44px; height: 44px; border-radius: 14px; flex: none;
   display: flex; align-items: center; justify-content: center;
-  font-weight: 700; font-size: 15px; background: rgba(0, 0, 0, 0.22);
+  font-weight: 700; font-size: 15px;
+  background: color-mix(in srgb, currentColor 24%, transparent);
 }
 .avatar.sm { width: 24px; height: 24px; border-radius: 7px; font-size: 10px; }
 .avatar-stack { display: flex; gap: 3px; flex-wrap: wrap; justify-content: flex-end; max-width: 110px; }
 .check {
-  width: 24px; height: 24px; border-radius: 7px; border: 2px solid var(--muted); flex: none;
+  width: 28px; height: 28px; border-radius: 50%; border: 2.5px solid var(--muted); flex: none;
   display: flex; align-items: center; justify-content: center;
 }
 .check.on { background: var(--green); border-color: var(--green); }
@@ -246,7 +252,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--green-brigh
 .card { background: var(--surface); border-radius: var(--radius); padding: 14px; }
 .card-head { display: flex; align-items: center; gap: 12px; }
 .card-head .row-main { flex: 1; }
-.card-items { margin: 10px 0 0 52px; display: grid; gap: 5px; font-size: 14px; color: var(--muted); }
+.card-items { margin: 10px 0 0 56px; display: grid; gap: 5px; font-size: 14px; color: var(--muted); }
 .card-items div { display: flex; justify-content: space-between; gap: 10px; }
 .card-items em { font-style: normal; opacity: 0.8; }
 .done { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 40px 10px 10px; }
@@ -255,3 +261,21 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--green-brigh
 @media (prefers-reduced-motion: reduce) { .done-mark, .spinner { animation: none; } }
 .empty { flex: 1; display: flex; align-items: center; justify-content: center; color: var(--muted); text-align: center; padding: 40px; }
 .receiver-banner { background: var(--surface-strong); border-radius: 12px; padding: 10px 14px; font-size: 13px; color: var(--muted); line-height: 1.4; }
+
+/* --- dodatno po Flik posnetkih --- */
+.icon-square {
+  width: 46px; height: 46px; border-radius: 14px; border: 0; background: var(--surface);
+  display: flex; align-items: center; justify-content: center; color: var(--text);
+}
+.letter { font-size: 13px; font-weight: 700; color: var(--muted); margin: 2px 4px -10px; }
+.segmented { display: grid; grid-template-columns: 1fr 1fr; background: var(--surface); border-radius: 14px; padding: 4px; }
+.segmented button { border: 0; background: none; border-radius: 11px; padding: 10px; font-weight: 500; }
+.segmented button.on { background: rgba(200, 210, 240, 0.45); }
+.set-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex: none; background: color-mix(in srgb, currentColor 24%, transparent); }
+.toggle { width: 50px; height: 30px; border-radius: 99px; background: rgba(220, 226, 245, 0.35); position: relative; flex: none; border: 0; }
+.toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #dfe3f6; transition: left 0.15s; }
+.toggle.on { background: #3fd35a; }
+.toggle.on::after { left: 23px; }
+.logout { background: var(--surface); border: 0; border-radius: var(--radius); padding: 16px; color: var(--red); font-weight: 700; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.big-label { font-size: 12px; font-weight: 700; letter-spacing: 0.05em; color: var(--muted); }
+.big-amount { font-size: 30px; font-weight: 700; margin-top: 4px; font-variant-numeric: tabular-nums; }

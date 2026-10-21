@@ -1,14 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
 import { api, type Assignments, type BillPayload, type Contact, type FlikRequest } from './api'
-import { BottomNav, StatusBar, TopBar, type Tab } from './components/ui'
+import { BottomNav, StatusBar, type Tab } from './components/ui'
 import { toLines, toPieces, type Line } from './money'
 import { Assign } from './screens/Assign'
 import { Group } from './screens/Group'
-import { Home, RECENT, TransactionList } from './screens/Home'
+import { Home } from './screens/Home'
 import { Receiver, Requests } from './screens/Requests'
 import { Review } from './screens/Review'
 import { Scan } from './screens/Scan'
 import { Sent, Summary } from './screens/Summary'
+import { Settings, Transactions } from './screens/Tabs'
 
 type Step = 'scan' | 'review' | 'group' | 'assign' | 'summary' | 'sent'
 
@@ -119,21 +120,11 @@ export default function App() {
   } else if (tab === 'home') {
     content = <Home onSplit={startSplit} onAll={() => setTab('transactions')} />
   } else if (tab === 'transactions') {
-    content = (
-      <div className="screen">
-        <TopBar title="Transakcije" />
-        <TransactionList rows={RECENT} />
-      </div>
-    )
+    content = <Transactions />
   } else if (tab === 'requests') {
     content = <Requests />
   } else {
-    content = (
-      <div className="screen">
-        <TopBar title="Nastavitve" />
-        <div className="empty">Nastavitve niso del prototipa.</div>
-      </div>
-    )
+    content = <Settings />
   }
 
   return (

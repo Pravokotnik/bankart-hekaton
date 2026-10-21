@@ -60,7 +60,7 @@ export function Summary({
                 <div className="row-name">{p.is_payer ? 'Tvoj delež' : p.participant.name}</div>
                 <div className="row-sub">{p.is_payer ? 'Plačal si račun, zate ni zahtevka.' : p.participant.phone}</div>
               </div>
-              <div className="amount">{formatEur(p.amount_cents)}</div>
+              <div className={`amount${p.is_payer ? '' : ' in'}`}>{formatEur(p.amount_cents)}</div>
             </div>
             <PartList items={p.items} />
           </div>

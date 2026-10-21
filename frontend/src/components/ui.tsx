@@ -23,6 +23,31 @@ const ICONS: Record<string, ReactNode> = {
   chevron: <path d="M9 6l6 6-6 6" />,
   trash: <path d="M5 7h14M10 7V5h4v2M7 7l1 13h8l1-13" />,
   plus: <path d="M12 5v14M5 12h14" />,
+  refresh: <path d="M20 11a8 8 0 00-14.5-4.5L4 8M4 4v4h4M4 13a8 8 0 0014.5 4.5L20 16M20 20v-4h-4" />,
+  user: (
+    <>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 21c1-4 4.5-6 8-6s7 2 8 6" />
+    </>
+  ),
+  card: <path d="M3 6h18v12H3zM3 10h18M7 15h4" />,
+  lock: <path d="M6 11h12v10H6zM8 11V8a4 4 0 018 0v3" />,
+  sound: <path d="M4 9v6h4l5 4V5L8 9H4zM16 9a4 4 0 010 6M18.5 6.5a7.5 7.5 0 010 11" />,
+  moon: <path d="M20 14.5A8 8 0 119.5 4a6.5 6.5 0 0010.5 10.5z" />,
+  globe: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18" />
+    </>
+  ),
+  info: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 11v6M12 7.5v.5" />
+    </>
+  ),
+  news: <path d="M5 4h11v16H5zM16 8h3v10a2 2 0 01-2 2M8 8h5M8 12h5M8 16h3" />,
+  logout: <path d="M14 4H5v16h9M10 12h11M17 8l4 4-4 4" />,
   search: (
     <>
       <circle cx="11" cy="11" r="6" />
@@ -64,11 +89,11 @@ export function TopBar({ title, onBack, subtitle }: { title: string; onBack?: ()
       {onBack && (
         <div className="topbar">
           <button className="back" onClick={onBack} aria-label="Nazaj">
-            <Icon name="back" />
+            <Icon name="back" size={30} stroke={2.4} />
           </button>
         </div>
       )}
-      <h1 className="title">{title}</h1>
+      <h1 className={`title${onBack ? ' sub' : ''}`}>{title}</h1>
       {subtitle && <p className="subtitle">{subtitle}</p>}
     </>
   )

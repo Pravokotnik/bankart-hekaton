@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { PAYER, type Contact } from '../api'
 import { Avatar, Icon, TopBar } from '../components/ui'
 
@@ -6,6 +6,16 @@ function people(n: number) {
   if (n === 2) return '2 osebi'
   if (n === 3 || n === 4) return `${n} osebe`
   return `${n} oseb`
+}
+
+/** Kontakte razvrsti po prvi črki, kot imenik v Fliku. */
+function letters(contacts: Contact[]): [string, Contact[]][] {
+  const groups = new Map<string, Contact[]>()
+  for (const c of [...contacts].sort((a, b) => a.name.localeCompare(b.name, 'sl'))) {
+    const letter = c.name[0].toUpperCase()
+    groups.set(letter, [...(groups.get(letter) ?? []), c])
+  }
+  return [...groups.entries()]
 }
 
 export function Group({
@@ -35,26 +45,31 @@ export function Group({
   return (
     <>
       <div className="screen">
-        <TopBar title="Kdo je bil zraven?" onBack={onBack} subtitle="Ti si vedno v skupini." />
+        <TopBar title="Kdo je bil zraven?" onBack={onBack} subtitle="Izberi kontakte. Ti si vedno v skupini." />
         <label className="search">
           <Icon name="search" size={20} />
-          <input placeholder="Iskanje …" value={query} onChange={(e) => setQuery(e.target.value)} />
+          <input placeholder="Poišči kontakt …" value={query} onChange={(e) => setQuery(e.target.value)} />
         </label>
-        <div className="list">
-          {shown.map((c) => (
-            <button className="row" key={c.id} onClick={() => toggle(c.id)} aria-pressed={chosen.has(c.id)}>
-              <Avatar contact={c} />
-              <div className="row-main">
-                <div className="row-name">{c.name}</div>
-                <div className="row-sub">{c.phone}</div>
-              </div>
-              <span className={`check${chosen.has(c.id) ? ' on' : ''}`}>
-                {chosen.has(c.id) && <Icon name="check" size={16} stroke={3} />}
-              </span>
-            </button>
-          ))}
-          {shown.length === 0 && <div className="row"><span className="row-sub">Ni zadetkov.</span></div>}
-        </div>
+        {shown.length === 0 && <p className="hint">Ni zadetkov.</p>}
+        {letters(shown).map(([letter, group]) => (
+          <Fragment key={letter}>
+            <div className="letter">{letter}</div>
+            <div className="list">
+              {group.map((c) => (
+                <button className="row" key={c.id} onClick={() => toggle(c.id)} aria-pressed={chosen.has(c.id)}>
+                  <Avatar contact={c} />
+                  <div className="row-main">
+                    <div className="row-name">{c.name}</div>
+                    <div className="row-sub">{c.phone}</div>
+                  </div>
+                  <span className={`check${chosen.has(c.id) ? ' on' : ''}`}>
+                    {chosen.has(c.id) && <Icon name="check" size={16} stroke={3} />}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </Fragment>
+        ))}
       </div>
       <div className="footer">
         <button

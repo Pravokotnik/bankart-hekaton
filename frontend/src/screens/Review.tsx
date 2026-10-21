@@ -31,6 +31,10 @@ export function Review({
     <>
       <div className="screen">
         <TopBar title="Preveri postavke" onBack={onBack} subtitle="Popravi, če je kaj prebrano narobe." />
+        <div className="card">
+          <div className="big-label">CELOTEN ZNESEK</div>
+          <div className="big-amount">{formatEur(totalCents)}</div>
+        </div>
         <div className="edit-head"><span>Izdelek</span><span>Kos</span><span>Znesek</span><span /></div>
         <div className="list">
           {drafts.map((d, i) => (
