@@ -1,0 +1,10 @@
+{
+  "items": [
+    { "name": "Radler", "quantity": 2, "price": 9.00 },
+    { "name": "Veggie burger", "quantity": 1, "price": 8.50 },
+    { "name": "Čebulni obročki", "quantity": 1, "price": 3.50 },
+    { "name": "The Gotham burger", "quantity": 1, "price": 8.90 },
+    { "name": "Krompirček", "quantity": 1, "price": 2.50 }
+  ],
+  "total": 32.40
+}
