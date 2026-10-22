@@ -195,6 +195,21 @@ Na vseh 63 računih v `slike/racuni/`:
 
 Neujemanja so večinoma pri majhnih računih iz lokalov (1–3 postavke, druga postavitev) in pri posameznih napačno prebranih številkah na dolgih računih. Uporabnik razliko vidi na zaslonu „Preveri postavke“ in jo popravi. Merjenje: `backend/experiments/speed_all.py`.
 
+### Tabela kot CSV in popravek po vsoti (22. 10. 2026)
+
+Pregled neujemanj je pokazal, da je glavni vzrok **en pokvarjen znesek v vrstici** (`∠69` namesto `6,97`, manjkajoč znesek pri teži), ne model. Zato zdaj:
+
+1. **Tabela kot CSV** (`reader/table.py`): vsako številko pripišemo stolpcu iz glave (Količina, Cena, Popust, Znesek) po položaju x. Ker velja znesek = količina × cena − popust, pokvarjen ali manjkajoč znesek izračunamo iz ostalih stolpcev.
+2. **Popravek po vsoti** (`reader/repair.py`): izmed prebranega in izračunanega zneska izberemo kombinacijo, ki da točno „Skupaj“. Če manjka en sam znesek, je to razlika do „Skupaj“.
+3. Storno (`-1 | 30,99 | -30,99`) odstrani izdelek, popust z minusom zmanjša prejšnjo postavko, ključne besede tudi brez šumnikov (`ZA PLACILO`, `SKUPAJEUR`, `MEDUZBROJ`), stopnja DDV `(9,50%)` ni cena.
+
+| | Prej | Zdaj |
+|---|---|---|
+| Vsota se ujema (brez modela) | 37 / 63 | **56 / 63** |
+| Prebrano s tabelo | – | 45 računov |
+
+Preostalih 7: 3 potrdila kartice ali parkirnine brez postavk, 2 nečitljivi sliki, 2 računa iz lokalov z zelo pokvarjenim OCR. Te uporabnik vnese ali popravi ročno. Preizkus brez OCR: `backend/experiments/eval_cache.py` (OCR shrani `experiments/dump_ocr.py`).
+
 ## 7. Tveganja
 
 | Tveganje | Kaj naredimo |

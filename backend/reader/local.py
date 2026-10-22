@@ -1,7 +1,9 @@
-"""Lokalni bralnik: OCR (ONNX Runtime) → vrstice → pravila, po potrebi Qwen3-4B-Instruct-2507.
+"""Lokalni bralnik: OCR (ONNX Runtime) → vrstice → tabela / pravila, po potrebi Qwen3-4B.
 
-Najprej poskusimo s pravili (brez modela, ~0 s). Model pokličemo le, če se vsota postavk
-ne ujema s končnim zneskom. Tako je večina računov prebrana v času OCR (2–5 s)."""
+1. Tabela ("lažni CSV"): številke pripišemo stolpcem iz glave po položaju in pokvarjene
+   zneske izračunamo iz količina × cena − popust; zneske izberemo tako, da se ujema vsota.
+2. Pravila: za račune brez tabele (lokali, dvovrstične postavke "2x4,50").
+3. Model: le če se vsota še vedno ne ujema in ima račun < 10 postavk."""
 
 from __future__ import annotations
 
@@ -9,26 +11,43 @@ import time
 
 from . import local_llm
 from .errors import ReceiptError
-from .lines import build_lines
-from .ocr import read_boxes
-from .postprocess import gap, parse_by_rules, resolve_item_lines, sum_matches, trim_to_total
+from .lines import build_rows, row_text
+from .ocr import Box, read_boxes
+from .postprocess import _TOTAL_LINE, find_total, gap, parse_by_rules, resolve_item_lines, sum_matches, trim_to_total
+from .repair import choose
+from .table import parse_table
 
-# Pri dolgih računih (tabela z ≥ 10 postavkami) so pravila skoraj vedno pravilna, razlika pa
-# izvira iz ene napačno prebrane številke, ki je model ne more popraviti (zneske jemljemo iz
-# besedila). Model bi tam porabil 12–22 s brez koristi, zato ga preskočimo.
+# Pri dolgih računih je razlika skoraj vedno ena napačno prebrana številka, ki je model ne
+# more popraviti (zneske jemljemo iz besedila). Model bi tam porabil 12–22 s brez koristi.
 SKIP_MODEL_FROM_ITEMS = 10
+
+
+def parse_rows(rows: list[list[Box]]) -> tuple[dict, list[str]]:
+    """Brez modela: vrne najboljši rezultat (tabela ali pravila) in vrstice za model."""
+    lines = trim_to_total([row_text(r) for r in rows])
+    rows = rows[: len(lines)]
+    total = find_total(lines) or 0.0
+
+    candidates = [parse_by_rules(lines)]
+    table = parse_table(rows, lines, _TOTAL_LINE)
+    if table:
+        candidates.insert(0, {"items": choose(table, int(round(total * 100))), "total": total, "method": "table"})
+    for candidate in candidates:
+        if sum_matches(candidate):
+            return candidate, lines
+    return min(candidates, key=gap), lines
 
 
 def read(data: bytes) -> dict:
     timings = {}
     start = time.perf_counter()
-    lines = trim_to_total(build_lines(read_boxes(data)))
+    rows = build_rows(read_boxes(data))
     timings["ocr_ms"] = int((time.perf_counter() - start) * 1000)
-    if not lines:
+    if not rows:
         raise ReceiptError("Na sliki ni mogoče prebrati besedila. Slikaj račun bliže in bolj osvetljen.")
 
-    receipt = parse_by_rules(lines)
-    timings["method"] = "rules"
+    receipt, lines = parse_rows(rows)
+    timings["method"] = receipt.pop("method", "rules")
     if not sum_matches(receipt) and len(receipt["items"]) < SKIP_MODEL_FROM_ITEMS:
         start = time.perf_counter()
         raw = local_llm.extract(local_llm.number_lines(lines))

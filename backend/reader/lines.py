@@ -11,9 +11,9 @@ MIN_SCORE = 0.6
 _JUNK = re.compile(r"[　-鿿]")
 
 
-def build_lines(boxes: list[Box]) -> list[str]:
-    """Škatle z isto višino združi v vrstico, jih uredi od leve proti desni
-    in stolpce loči z " | ". Izpusti nezanesljive in okrasne škatle."""
+def build_rows(boxes: list[Box]) -> list[list[Box]]:
+    """Škatle z isto višino združi v vrstico in jih uredi od leve proti desni.
+    Izpusti nezanesljive in okrasne škatle."""
     useful = [b for b in boxes if b.score >= MIN_SCORE and not _JUNK.search(b.text) and b.text.strip()]
     rows: list[list[Box]] = []
     for box in sorted(useful, key=lambda b: b.y_mid):
@@ -23,4 +23,13 @@ def build_lines(boxes: list[Box]) -> list[str]:
             row.append(box)
         else:
             rows.append([box])
-    return [" | ".join(b.text.strip() for b in sorted(row, key=lambda b: b.x0)) for row in rows]
+    return [sorted(row, key=lambda b: b.x0) for row in rows]
+
+
+def row_text(row: list[Box]) -> str:
+    """Stolpci ločeni z " | "."""
+    return " | ".join(b.text.strip() for b in row)
+
+
+def build_lines(boxes: list[Box]) -> list[str]:
+    return [row_text(row) for row in build_rows(boxes)]
