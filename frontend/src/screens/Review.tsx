@@ -2,9 +2,12 @@ import { useState } from 'react'
 import { Icon, TopBar } from '../components/ui'
 import { discounted, formatEur, parseEur, type Line } from '../money'
 
-type Draft = Line & { priceText: string }
+// Besedilo polj hranimo posebej, da lahko številko izbrišeš in vtipkaš novo (prazno polje je dovoljeno med tipkanjem).
+type Draft = Line & { priceText: string; qtyText: string }
 
-const toDraft = (l: Line): Draft => ({ ...l, priceText: (l.price_cents / 100).toFixed(2).replace('.', ',') })
+const toDraft = (l: Line): Draft => ({ ...l, priceText: (l.price_cents / 100).toFixed(2).replace('.', ','), qtyText: String(l.quantity) })
+
+const validQty = (text: string) => /^\d{1,3}$/.test(text) && parseInt(text) >= 1
 
 const PRESETS = [5, 10, 15, 20]
 
@@ -30,7 +33,7 @@ export function Review({
 }) {
   const manual = totalCents === null
   const [drafts, setDrafts] = useState<Draft[]>(() =>
-    lines.length > 0 ? lines.map(toDraft) : [{ group_id: 'n0', name: '', quantity: 1, price_cents: 0, priceText: '' }],
+    lines.length > 0 ? lines.map(toDraft) : [{ group_id: 'n0', name: '', quantity: 1, price_cents: 0, priceText: '', qtyText: '1' }],
   )
   const [nextId, setNextId] = useState(1)
   // Vrstica, pri kateri je odprt vnos popusta.
@@ -41,7 +44,7 @@ export function Review({
     setDrafts((ds) => ds.map((d, j) => (j === i ? { ...d, ...patch } : d)))
 
   const asLine = (d: Draft): Line => ({ ...d, price_cents: parseEur(d.priceText) ?? 0 })
-  const invalid = drafts.some((d) => parseEur(d.priceText) === null || !d.name.trim() || d.quantity < 1)
+  const invalid = drafts.some((d) => parseEur(d.priceText) === null || !d.name.trim() || !validQty(d.qtyText))
   const sum = drafts.reduce((s, d) => s + (parseEur(d.priceText) ?? 0), 0)
   const afterDiscount = drafts.reduce((s, d) => s + discounted(asLine(d)), 0)
   const savings = sum - afterDiscount
@@ -79,8 +82,14 @@ export function Review({
                     className="num qty"
                     inputMode="numeric"
                     aria-label="Število kosov"
-                    value={d.quantity}
-                    onChange={(e) => update(i, { quantity: Math.max(1, parseInt(e.target.value) || 1) })}
+                    value={d.qtyText}
+                    style={d.qtyText && !validQty(d.qtyText) ? { color: 'var(--red)' } : undefined}
+                    onChange={(e) => {
+                      const text = e.target.value.replace(/\D/g, '').slice(0, 3)
+                      update(i, validQty(text) ? { qtyText: text, quantity: parseInt(text) } : { qtyText: text })
+                    }}
+                    // Prazno polje ob odhodu vrne na 1.
+                    onBlur={() => { if (!validQty(d.qtyText)) update(i, { qtyText: '1', quantity: 1 }) }}
                   />
                   <input
                     className="num"
@@ -138,7 +147,7 @@ export function Review({
           className="link"
           style={{ alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: 6 }}
           onClick={() => {
-            setDrafts((ds) => [...ds, { group_id: `n${nextId}`, name: '', quantity: 1, price_cents: 0, priceText: '', discount_pct: allPct ?? 0 }])
+            setDrafts((ds) => [...ds, { group_id: `n${nextId}`, name: '', quantity: 1, price_cents: 0, priceText: '', qtyText: '1', discount_pct: allPct ?? 0 }])
             setNextId((n) => n + 1)
           }}
         >
@@ -206,7 +215,7 @@ export function Review({
         <button
           className="btn"
           disabled={invalid || drafts.length === 0}
-          onClick={() => onNext(drafts.map(({ priceText, ...l }) => ({ ...l, price_cents: parseEur(priceText)! })))}
+          onClick={() => onNext(drafts.map(({ priceText, qtyText, ...l }) => ({ ...l, quantity: parseInt(qtyText), price_cents: parseEur(priceText)! })))}
         >
           Naprej{savings > 0 ? ` (${formatEur(afterDiscount)})` : ''}
         </button>
