@@ -298,8 +298,11 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--green-brigh
 .card-head { display: flex; align-items: center; gap: 12px; }
 .card-head .row-main { flex: 1; }
 .card-items { margin: 10px 0 0 56px; display: grid; gap: 5px; font-size: 14px; color: var(--muted); }
-.card-items div { display: flex; justify-content: space-between; gap: 10px; }
-.card-items em { font-style: normal; opacity: 0.8; }
+.card-items div { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+/* Ime se lahko prelomi, cena pa ostane v eni vrstici, desno poravnana. */
+.card-items .part-name { flex: 1; min-width: 0; line-height: 1.35; }
+.card-items .part-name small { display: block; font-size: 12px; opacity: 0.75; }
+.card-items .part-price { flex: none; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .done { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 40px 10px 10px; }
 .done-mark { width: 84px; height: 84px; border-radius: 50%; background: var(--green); display: flex; align-items: center; justify-content: center; animation: pop 0.35s ease-out; }
 @keyframes pop { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -356,7 +359,8 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--green-brigh
 .check-sum .verdict.ok { background: var(--green-soft); color: var(--green-bright); font-weight: 700; align-items: center; }
 .check-sum .verdict.bad { background: var(--warn-bg); color: var(--warn-fg); }
 .check-sum .verdict b { color: var(--strong); }
-.add-phone { border: 1.5px dashed var(--green); }
+/* Celoten črtkan okvir; .row:last-child bi sicer odstranil spodnji rob. */
+.row.add-phone, .row.add-phone:last-child { border: 1.5px dashed var(--green); }
 
 /* Transakcije so v Fliku nižje in z manjšo pisavo. */
 .list.tx .row { padding: 10px 14px; }

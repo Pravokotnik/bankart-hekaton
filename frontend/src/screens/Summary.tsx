@@ -8,8 +8,11 @@ export function PartList({ items }: { items: PersonSummary['items'] }) {
     <div className="card-items">
       {items.map((part, i) => (
         <div key={`${part.item_id}-${i}`}>
-          <span>{part.name}{part.of > 1 && <em> (deljeno na {part.of})</em>}</span>
-          <span>{formatEur(part.cents)}</span>
+          <span className="part-name">
+            {part.name}
+            {part.of > 1 && <small>deljeno na {part.of}</small>}
+          </span>
+          <span className="part-price">{formatEur(part.cents)}</span>
         </div>
       ))}
     </div>

@@ -56,9 +56,6 @@ export function Requests() {
           ))}
         </div>
       )}
-      <p className="hint">
-        Pogled prejemnika odpreš v drugem oknu: <a href="/?view=prejemnik" target="_blank" style={{ color: 'var(--green-bright)' }}>/?view=prejemnik</a>
-      </p>
     </div>
   )
 }
