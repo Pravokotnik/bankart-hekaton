@@ -5,3 +5,6 @@ anthropic
 pillow
 pytest
 httpx
+rapidocr
+onnxruntime
+numpy

@@ -13,7 +13,6 @@ export function Scan({
   onRead: (r: Receipt) => void
   onManual: () => void
 }) {
-  const input = useRef<HTMLInputElement>(null)
   const video = useRef<HTMLVideoElement>(null)
   const stream = useRef<MediaStream | null>(null)
   const mounted = useRef(true)
@@ -21,6 +20,23 @@ export function Scan({
   const [preview, setPreview] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [readerReady, setReaderReady] = useState<boolean | null>(null)
+  const [seconds, setSeconds] = useState(0)
+
+  useEffect(() => {
+    api.status().then((s) => setReaderReady(s.ready)).catch(() => setReaderReady(false))
+  }, [])
+
+  // Števec med branjem: lokalni model potrebuje 10–30 s, uporabnik naj vidi, da se nekaj dogaja.
+  useEffect(() => {
+    if (!busy) return
+    const started = Date.now()
+    const timer = setInterval(() => setSeconds(Math.floor((Date.now() - started) / 1000)), 500)
+    return () => {
+      clearInterval(timer)
+      setSeconds(0)
+    }
+  }, [busy])
 
   const stopCamera = useCallback(() => {
     stream.current?.getTracks().forEach((t) => t.stop())
@@ -116,28 +132,35 @@ export function Scan({
             <button className="shutter" onClick={capture} aria-label="Slikaj račun" />
           )}
         </div>
-        {busy && <div className="reading"><span className="spinner" />Berem račun …</div>}
+        {busy && (
+          <div className="reading">
+            <span className="spinner" />
+            {seconds < 3 ? 'Berem besedilo z računa …' : `Prepoznavam postavke … ${seconds} s`}
+          </div>
+        )}
+        {busy && seconds >= 3 && <p className="hint">Bere lokalni model, slika ne zapusti računalnika. Traja 10–30 s.</p>}
+        {readerReady === false && !busy && !preview && (
+          <p className="hint">Model za branje računov ne teče. Zaženi llama-server (glej README) ali uporabi demo račun.</p>
+        )}
         {error && <div className="error">{error} Lahko poskusiš znova ali vneseš postavke ročno.</div>}
-        <input
-          ref={input}
-          type="file"
-          accept="image/*"
-          hidden
-          onChange={(e) => {
-            const file = e.target.files?.[0]
-            if (file) readFile(file)
-            e.target.value = ''
-          }}
-        />
       </div>
       <div className="footer">
-        {preview && !busy ? (
-          <button className="btn ghost" onClick={retake}>Slikaj znova</button>
-        ) : (
-          <button className="btn ghost icon-label" onClick={() => input.current?.click()} disabled={busy}>
-            <Icon name="upload" size={20} /> Naloži sliko računa
-          </button>
-        )}
+        {preview && !busy && <button className="btn ghost" onClick={retake}>Slikaj znova</button>}
+        {/* Pravo polje za datoteko v oznaki: deluje tudi v brskalnikih, ki blokirajo klik iz kode. */}
+        <label className={`btn ghost icon-label${busy ? ' disabled' : ''}`}>
+          <input
+            className="visually-hidden"
+            type="file"
+            accept="image/*"
+            disabled={busy}
+            onChange={(e) => {
+              const file = e.target.files?.[0]
+              if (file) readFile(file)
+              e.target.value = ''
+            }}
+          />
+          <Icon name="upload" size={20} /> Naloži sliko računa
+        </label>
         <button className="btn ghost icon-label" onClick={() => { stopCamera(); onManual() }} disabled={busy}>
           <Icon name="edit" size={20} /> Vnesi ročno
         </button>

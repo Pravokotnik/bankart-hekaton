@@ -4,7 +4,7 @@ export type Contact = { id: string; name: string; phone: string; color: string }
 export type Piece = { id: string; group_id: string; name: string; price_cents: number }
 
 export type Receipt = {
-  source: 'claude' | 'demo'
+  source: 'local' | 'claude' | 'demo'
   items: Piece[]
   total_cents: number
   items_sum_cents: number
@@ -64,7 +64,7 @@ const json = (body: unknown): RequestInit => ({
 })
 
 export const api = {
-  status: () => call<{ api_key: boolean }>('/api/status'),
+  status: () => call<{ reader: 'local' | 'claude'; ready: boolean }>('/api/status'),
   contacts: () => call<Contact[]>('/api/contacts'),
   addContact: (phone: string) => call<Contact>('/api/contacts', json({ phone })),
   parseReceipt: (file: File) => {

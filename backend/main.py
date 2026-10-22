@@ -4,15 +4,15 @@ from __future__ import annotations
 
 import json
 import re
-import os
 import uuid
 from datetime import datetime
 from pathlib import Path
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel
 
-from parse_receipt import ReceiptError, parse_receipt
+from parse_receipt import READER, ReceiptError, is_ready, parse_receipt
 from split import compute_breakdown, expand_items
 
 MAX_UPLOAD_BYTES = 15 * 1024 * 1024
@@ -44,6 +44,7 @@ def _receipt_response(parsed: dict, source: str) -> dict:
         "items": items,
         "total_cents": total_cents,
         "items_sum_cents": sum(i["price_cents"] for i in items),
+        "timings": parsed.get("timings"),
     }
 
 
@@ -92,7 +93,7 @@ def contacts_add(body: NewContact):
 
 @app.get("/api/status")
 def status():
-    return {"api_key": bool(os.environ.get("ANTHROPIC_API_KEY"))}
+    return {"reader": READER, "ready": is_ready()}
 
 
 @app.post("/api/receipts/parse")
@@ -101,11 +102,12 @@ async def receipts_parse(image: UploadFile = File(...)):
     if len(data) > MAX_UPLOAD_BYTES:
         raise HTTPException(413, "Slika je prevelika (največ 15 MB).")
     try:
-        parsed = parse_receipt(data)
+        # Lokalni model bere do ~40 s; v niti, da strežnik medtem odgovarja na druge zahteve.
+        parsed = await run_in_threadpool(parse_receipt, data)
     except ReceiptError as e:
         raise HTTPException(502, str(e)) from e
     # Slike ne shranjujemo: po branju ostane samo seznam postavk.
-    return _receipt_response(parsed, "claude")
+    return _receipt_response(parsed, READER)
 
 
 @app.get("/api/receipts/demo")
