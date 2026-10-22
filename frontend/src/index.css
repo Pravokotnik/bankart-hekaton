@@ -1,21 +1,73 @@
 :root {
+  /* Svetli način (privzeto), po Flik posnetkih IMG_0667–0674. */
+  --page: #e6e9ec;
+  --bg: #fbfbfc;
+  --bg-deep: #f3f4f6;
+  --surface: rgba(20, 30, 25, 0.05);
+  --surface-strong: rgba(20, 30, 25, 0.09);
+  --line: rgba(20, 30, 25, 0.07);
+  --green: #6cc24a;
+  --green-bright: #4caf2a;
+  --green-soft: rgba(108, 194, 74, 0.18);
+  --text: #1f2422;
+  --muted: #7b8386;
+  --red: #e5533d;
+  --amber: #b97d0c;
+  --on-green: #ffffff;
+  --action-bg: #e1f3d8;
+  --action-fg: #4caf2a;
+  --nav-active-bg: #dff2d5;
+  --nav-active-fg: #3f9a22;
+  --error-bg: rgba(229, 83, 61, 0.1);
+  --error-fg: #b8392a;
+  --warn-bg: rgba(201, 138, 18, 0.12);
+  --warn-fg: #8a5c06;
+  --strong: #1f2422;
+  --dash: rgba(20, 30, 25, 0.2);
+  --piece-bg: rgba(20, 30, 25, 0.035);
+  --seg-on: #ffffff;
+  --seg-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  --toggle-off: #d9dce2;
+  --knob: #ffffff;
+  --avatar-mix: 62%;
+  --logo-weight: 400;
+  --radius: 14px;
+  font-family: 'Roboto', system-ui, sans-serif;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Temni način: v Nastavitvah "Temni način". */
+:root[data-theme="dark"] {
   --page: #1d2320;
   --bg: #3b4641;
   --bg-deep: #333d39;
   --surface: rgba(255, 255, 255, 0.1);
   --surface-strong: rgba(255, 255, 255, 0.16);
   --line: rgba(255, 255, 255, 0.09);
-  --green: #6cc24a;
   --green-bright: #8ee06a;
   --green-soft: rgba(108, 194, 74, 0.22);
   --text: #e3e7f7;
   --muted: #b4bccb;
   --red: #ff8466;
   --amber: #f2b84b;
-  --radius: 14px;
-  font-family: 'Roboto', system-ui, sans-serif;
-  color: var(--text);
-  -webkit-font-smoothing: antialiased;
+  --action-bg: #6cc24a;
+  --action-fg: #d9ffc9;
+  --nav-active-bg: #6cc24a;
+  --nav-active-fg: #eaffdf;
+  --error-bg: rgba(255, 132, 102, 0.15);
+  --error-fg: #ffc2b3;
+  --warn-bg: rgba(242, 184, 75, 0.16);
+  --warn-fg: #ffd98f;
+  --strong: #ffffff;
+  --dash: rgba(255, 255, 255, 0.25);
+  --piece-bg: rgba(0, 0, 0, 0.1);
+  --seg-on: rgba(200, 210, 240, 0.45);
+  --seg-shadow: none;
+  --toggle-off: rgba(220, 226, 245, 0.35);
+  --knob: #dfe3f6;
+  --avatar-mix: 100%;
+  --logo-weight: 500;
 }
 
 * { box-sizing: border-box; }
@@ -96,12 +148,12 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--green-brigh
   display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: 13px; font-weight: 700;
   background: var(--green-soft); color: var(--green-bright); margin-top: 6px;
 }
-.pill.wait { background: rgba(242, 184, 75, 0.2); color: var(--amber); }
+.pill.wait { background: var(--warn-bg); color: var(--amber); }
 
 /* --- gumbi --- */
 .btn {
   border: 0; border-radius: 14px; padding: 15px 18px; font-size: 16px; font-weight: 700;
-  background: var(--green); color: #fff; width: 100%;
+  background: var(--green); color: var(--on-green); width: 100%;
 }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .btn.ghost { background: var(--surface); color: var(--text); }
@@ -121,7 +173,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--green-brigh
   display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 12px; font-weight: 500;
   color: var(--muted);
 }
-.nav button.active { background: var(--green); color: #eaffdf; }
+.nav button.active { background: var(--nav-active-bg); color: var(--nav-active-fg); }
 
 /* --- domov (razmerja po IMG_0659: logo ~95 px, gumbi ~58 px) --- */
 .screen.home { gap: 0; padding-top: 18px; }
@@ -129,17 +181,17 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--green-brigh
 .bank { color: var(--green-bright); font-weight: 700; font-size: 19px; }
 .home-head .icon-square { width: 34px; height: 34px; border-radius: 10px; }
 .flik-logo {
-  width: 96px; height: 96px; border-radius: 50%; border: 2.5px solid var(--text);
+  width: 96px; height: 96px; border-radius: 50%; border: 2px solid var(--text);
   display: flex; align-items: center; justify-content: center; margin: 30px auto 26px;
-  font-family: 'Roboto Mono', monospace; font-weight: 500; font-size: 31px; letter-spacing: -2px;
+  font-family: 'Roboto Mono', monospace; font-weight: var(--logo-weight); font-size: 31px; letter-spacing: -2px;
   padding-bottom: 2px;
 }
 .actions { display: flex; justify-content: center; gap: 32px; }
 .action { background: none; border: 0; display: flex; flex-direction: column; align-items: center; gap: 9px; font-weight: 700; font-size: 14px; width: 58px; }
 .action-icon {
-  width: 58px; height: 58px; border-radius: 17px; background: var(--green);
+  width: 58px; height: 58px; border-radius: 17px; background: var(--action-bg);
   display: flex; align-items: center; justify-content: center;
-  color: #d9ffc9;
+  color: var(--action-fg);
 }
 .split-cta {
   display: flex; align-items: center; gap: 12px; text-align: left; width: 100%; margin-top: 26px;
@@ -155,7 +207,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--green-brigh
 
 /* --- zajem --- */
 .drop {
-  border: 2px dashed rgba(255, 255, 255, 0.25); border-radius: 18px; padding: 34px 20px;
+  border: 2px dashed var(--dash); border-radius: 18px; padding: 34px 20px;
   display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center;
   background: var(--surface); cursor: pointer;
 }
@@ -169,7 +221,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--green-brigh
   border-top-color: var(--green-bright); animation: spin 0.8s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
-.error { background: rgba(255, 132, 102, 0.15); color: #ffc2b3; border-radius: 12px; padding: 12px 14px; font-size: 14px; line-height: 1.4; }
+.error { background: var(--error-bg); color: var(--error-fg); border-radius: 12px; padding: 12px 14px; font-size: 14px; line-height: 1.4; }
 .hint { color: var(--muted); font-size: 13px; text-align: center; line-height: 1.4; }
 
 /* --- pregled postavk --- */
@@ -193,7 +245,8 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--green-brigh
   width: 44px; height: 44px; border-radius: 14px; flex: none;
   display: flex; align-items: center; justify-content: center;
   font-weight: 700; font-size: 15px;
-  background: color-mix(in srgb, currentColor 24%, transparent);
+  color: color-mix(in srgb, var(--c, var(--text)) var(--avatar-mix), #000);
+  background: color-mix(in srgb, var(--c, var(--text)) 22%, transparent);
 }
 .avatar.sm { width: 24px; height: 24px; border-radius: 7px; font-size: 10px; }
 .avatar-stack { display: flex; gap: 3px; flex-wrap: wrap; justify-content: flex-end; max-width: 110px; }
@@ -231,7 +284,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--green-brigh
 }
 .item-body:active { background: var(--surface); }
 .item.piece .item-body { padding-left: 40px; }
-.item.piece { background: rgba(0, 0, 0, 0.1); }
+.item.piece { background: var(--piece-bg); }
 .qty-toggle {
   flex: none; background: var(--surface-strong); border: 0; border-radius: 9px; margin: 10px 0 10px 12px;
   padding: 0 8px; display: flex; align-items: center; gap: 2px; font-weight: 700; font-size: 14px;
@@ -262,10 +315,10 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--green-brigh
 .letter { font-size: 13px; font-weight: 700; color: var(--muted); margin: 2px 4px -10px; }
 .segmented { display: grid; grid-template-columns: 1fr 1fr; background: var(--surface); border-radius: 14px; padding: 4px; }
 .segmented button { border: 0; background: none; border-radius: 11px; padding: 10px; font-weight: 500; }
-.segmented button.on { background: rgba(200, 210, 240, 0.45); }
+.segmented button.on { background: var(--seg-on); box-shadow: var(--seg-shadow); }
 .set-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex: none; background: color-mix(in srgb, currentColor 24%, transparent); }
-.toggle { width: 50px; height: 30px; border-radius: 99px; background: rgba(220, 226, 245, 0.35); position: relative; flex: none; border: 0; }
-.toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #dfe3f6; transition: left 0.15s; }
+.toggle { width: 50px; height: 30px; border-radius: 99px; background: var(--toggle-off); position: relative; flex: none; border: 0; }
+.toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: var(--knob); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); transition: left 0.15s; }
 .toggle.on { background: #3fd35a; }
 .toggle.on::after { left: 23px; }
 .logout { background: var(--surface); border: 0; border-radius: var(--radius); padding: 16px; color: var(--red); font-weight: 700; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; }
@@ -301,8 +354,8 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--green-brigh
 .check-sum .line small { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
 .check-sum .verdict { display: flex; gap: 10px; align-items: flex-start; border-radius: 10px; padding: 10px 12px; font-size: 14px; line-height: 1.4; }
 .check-sum .verdict.ok { background: var(--green-soft); color: var(--green-bright); font-weight: 700; align-items: center; }
-.check-sum .verdict.bad { background: rgba(242, 184, 75, 0.16); color: #ffd98f; }
-.check-sum .verdict b { color: #fff; }
+.check-sum .verdict.bad { background: var(--warn-bg); color: var(--warn-fg); }
+.check-sum .verdict b { color: var(--strong); }
 .add-phone { border: 1.5px dashed var(--green); }
 
 /* Transakcije so v Fliku nižje in z manjšo pisavo. */
@@ -329,7 +382,7 @@ label.btn:focus-within { outline: 2px solid var(--green-bright); outline-offset:
 .line-discount-price { margin-left: auto; color: var(--green-bright); font-weight: 700; font-variant-numeric: tabular-nums; }
 .chips { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0; }
 .chip { border: 0; border-radius: 99px; padding: 6px 12px; background: var(--surface-strong); font-size: 13px; font-weight: 700; }
-.chip.on { background: var(--green); color: #fff; }
+.chip.on { background: var(--green); color: var(--on-green); }
 .chip-input { width: 76px; border: 1.5px solid var(--surface-strong); background: transparent; border-radius: 99px; padding: 5px 10px; color: var(--text); font: inherit; font-size: 13px; }
 .chip-input:focus { border-color: var(--green-bright); outline: none; }
 .discount-card .big-label { margin-bottom: 0; }

@@ -15,6 +15,15 @@ type Step = 'scan' | 'review' | 'group' | 'assign' | 'summary' | 'sent'
 
 const isReceiver = new URLSearchParams(window.location.search).get('view') === 'prejemnik'
 
+// Svetli način je privzet; temnega si zapomnimo v brskalniku (če shranjevanje ni na voljo, ostane svetel).
+function loadDark(): boolean {
+  try {
+    return localStorage.getItem('flik-theme') === 'dark'
+  } catch {
+    return false
+  }
+}
+
 export default function App() {
   const [tab, setTab] = useState<Tab>('home')
   const [step, setStep] = useState<Step | null>(null)
@@ -24,6 +33,16 @@ export default function App() {
   const [participants, setParticipants] = useState<string[]>([])
   const [assignments, setAssignments] = useState<Assignments>({})
   const [sent, setSent] = useState<FlikRequest[]>([])
+  const [dark, setDark] = useState(loadDark)
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = dark ? 'dark' : 'light'
+    try {
+      localStorage.setItem('flik-theme', dark ? 'dark' : 'light')
+    } catch {
+      // brez shranjevanja: tema velja do osvežitve strani
+    }
+  }, [dark])
 
   useEffect(() => {
     api.contacts().then(setContacts).catch(() => setContacts([]))
@@ -130,7 +149,7 @@ export default function App() {
   } else if (tab === 'requests') {
     content = <Requests />
   } else {
-    content = <Settings />
+    content = <Settings dark={dark} onDark={setDark} />
   }
 
   return (

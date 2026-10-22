@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import type { Contact } from '../api'
 import { initials } from '../money'
 
@@ -120,7 +120,7 @@ export function BottomNav({ tab, onTab }: { tab: Tab; onTab: (t: Tab) => void })
 
 export function Avatar({ contact, small }: { contact: Contact; small?: boolean }) {
   return (
-    <span className={`avatar${small ? ' sm' : ''}`} style={{ color: contact.color }} title={contact.name}>
+    <span className={`avatar${small ? ' sm' : ''}`} style={{ '--c': contact.color } as CSSProperties} title={contact.name}>
       {initials(contact.name)}
     </span>
   )

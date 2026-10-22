@@ -67,15 +67,22 @@ function SettingList({ items, on, onToggle }: { items: Setting[]; on: Set<string
   )
 }
 
-export function Settings() {
-  const [on, setOn] = useState(() => new Set(['Potisna obvestila', 'Temni način']))
-  const toggle = (label: string) =>
-    setOn((s) => {
+export function Settings({ dark, onDark }: { dark: boolean; onDark: (dark: boolean) => void }) {
+  const [others, setOthers] = useState(() => new Set(['Potisna obvestila']))
+  const on = new Set(others)
+  if (dark) on.add('Temni način')
+  const toggle = (label: string) => {
+    if (label === 'Temni način') {
+      onDark(!dark)
+      return
+    }
+    setOthers((s) => {
       const next = new Set(s)
       if (next.has(label)) next.delete(label)
       else next.add(label)
       return next
     })
+  }
   return (
     <div className="screen">
       <TopBar title="Nastavitve" />
