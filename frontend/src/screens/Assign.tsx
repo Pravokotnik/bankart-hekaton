@@ -37,7 +37,9 @@ export function Assign({
   onBack: () => void
   onNext: () => void
 }) {
-  const [active, setActive] = useState<string>(people[1]?.id ?? PAYER)
+  // null = nihče ni izbran (ponoven tap na izbrano osebo jo odznači).
+  const [active, setActive] = useState<string | null>(people[1]?.id ?? PAYER)
+  const pick = (id: string) => setActive((current) => (current === id ? null : id))
   const [open, setOpen] = useState<Set<string>>(new Set())
 
   const groups = useMemo(() => {
@@ -63,6 +65,7 @@ export function Assign({
 
   /** Tap na vrstico: aktivni osebi (ali vsem) doda ali odvzame vse podane kose. */
   function toggle(target: Piece[]) {
+    if (active === null) return
     const who = active === ALL ? ids : [active]
     const hasAll = target.every((p) => who.every((id) => assignments[p.id]?.[id]))
     const next: Assignments = { ...assignments }
@@ -79,13 +82,37 @@ export function Assign({
     onChange(next)
   }
 
-  function rest() {
-    const next: Assignments = { ...assignments }
-    for (const p of unassigned) next[p.id] = { [PAYER]: 1 }
+  const person = active !== null && active !== ALL ? active : null
+  // Koliko kosov bi "Počisti" odstranil: vse dodeljene ali samo kose izbrane osebe.
+  const clearCount = person
+    ? pieces.filter((p) => assignments[p.id]?.[person]).length
+    : pieces.length - unassigned.length
+
+  /** Brez izbire ali "Vsi": počisti vse. Izbrana oseba: odstrani samo njo (deljeni izdelki ostanejo drugim). */
+  function clear() {
+    if (!person) {
+      onChange({})
+      return
+    }
+    const next: Assignments = {}
+    for (const [pieceId, shares] of Object.entries(assignments)) {
+      const { [person]: _removed, ...others } = shares
+      next[pieceId] = others
+    }
     onChange(next)
   }
 
-  const activeName = active === ALL ? 'vse' : active === PAYER ? 'sebe' : byId[active].name.split(' ')[0]
+  /** Vse nedodeljene izdelke dodeli trenutno izbrani osebi (ali vsem, če je izbrano "Vsi"). */
+  function rest() {
+    if (active === null) return
+    const who = active === ALL ? ids : [active]
+    const next: Assignments = { ...assignments }
+    for (const p of unassigned) next[p.id] = Object.fromEntries(who.map((id) => [id, 1]))
+    onChange(next)
+  }
+
+  const activeName = active === ALL ? 'vse' : active === PAYER ? 'sebe' : person ? byId[person].name.split(' ')[0] : ''
+  const clearLabel = person ? (person === PAYER ? 'Počisti moje' : `Počisti: ${byId[person].name.split(' ')[0]}`) : 'Počisti vse'
 
   function holderAvatars(target: Piece[]) {
     const who = ids.filter((id) => target.some((p) => assignments[p.id]?.[id]))
@@ -104,22 +131,29 @@ export function Assign({
         <div className="people-bar" role="radiogroup" aria-label="Izberi osebo">
           {people.map((p) => (
             <button key={p.id} role="radio" aria-checked={active === p.id}
-              className={`person${active === p.id ? ' active' : ''}`} onClick={() => setActive(p.id)}>
+              className={`person${active === p.id ? ' active' : ''}`} onClick={() => pick(p.id)}>
               <Avatar contact={p} />
               <span>{p.id === PAYER ? 'Jaz' : p.name.split(' ')[0]}</span>
               <span className="owed">{formatEur(owed[p.id])}</span>
             </button>
           ))}
           <button role="radio" aria-checked={active === ALL}
-            className={`person${active === ALL ? ' active' : ''}`} onClick={() => setActive(ALL)}>
+            className={`person${active === ALL ? ' active' : ''}`} onClick={() => pick(ALL)}>
             <span className="avatar" style={{ color: 'var(--text)' }}>VSI</span>
             <span>Vsi</span>
             <span className="owed">skupno</span>
           </button>
         </div>
-        <p className="assign-hint">
-          Tapni izdelke za <b>{activeName}</b>.{active === ALL && ' Razdelijo se na enake dele.'}
-        </p>
+        <div className="assign-hint-row">
+          <p className="assign-hint">
+            {active === null
+              ? 'Izberi osebo zgoraj, nato tapni njene izdelke.'
+              : <>Tapni izdelke za <b>{activeName}</b>.{active === ALL && ' Razdelijo se na enake dele.'}</>}
+          </p>
+          <button className="clear-btn" onClick={clear} disabled={clearCount === 0}>
+            <Icon name="trash" size={15} /> {clearLabel}
+          </button>
+        </div>
         <div className="list">
           {groups.map((group) => {
             const first = group[0]
@@ -178,7 +212,19 @@ export function Assign({
             <div className="footer-note warn">
               {missingText(unassigned.length)}
             </div>
-            <button className="btn ghost" onClick={rest}>Ostalo je moje</button>
+            {active !== null && (
+              <button className="btn ghost rest-btn" onClick={rest}>
+                <span>Ostalo ({unassigned.length}) dodeli:</span>
+                {person ? (
+                  <span className="rest-who">
+                    <Avatar contact={byId[person]} small />
+                    {person === PAYER ? 'meni' : byId[person].name.split(' ')[0]}
+                  </span>
+                ) : (
+                  <span className="rest-who">vsem na enake dele</span>
+                )}
+              </button>
+            )}
           </>
         )}
         <button className="btn" disabled={unassigned.length > 0} onClick={onNext}>Povzetek</button>

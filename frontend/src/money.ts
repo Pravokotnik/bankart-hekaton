@@ -14,8 +14,14 @@ export function parseEur(text: string): number | null {
   return Math.round(parseFloat(normalized) * 100)
 }
 
-/** Vrstica na računu (en ali več enakih kosov). */
-export type Line = { group_id: string; name: string; quantity: number; price_cents: number }
+/** Vrstica na računu (en ali več enakih kosov). `price_cents` je cena z računa, popust je posebej. */
+export type Line = { group_id: string; name: string; quantity: number; price_cents: number; discount_pct?: number }
+
+/** Cena vrstice po popustu, zaokrožena na cent. */
+export function discounted(line: Line): number {
+  const pct = Math.min(100, Math.max(0, line.discount_pct ?? 0))
+  return Math.round((line.price_cents * (100 - pct)) / 100)
+}
 
 export function toLines(pieces: Piece[]): Line[] {
   const lines = new Map<string, Line>()
@@ -35,8 +41,9 @@ export function toLines(pieces: Piece[]): Line[] {
 export function toPieces(lines: Line[]): Piece[] {
   return lines.flatMap((line) => {
     const qty = Math.max(1, Math.floor(line.quantity))
-    const base = Math.floor(line.price_cents / qty)
-    const extra = line.price_cents - base * qty
+    const price = discounted(line)
+    const base = Math.floor(price / qty)
+    const extra = price - base * qty
     return Array.from({ length: qty }, (_, i) => ({
       id: `${line.group_id}-${i}`,
       group_id: line.group_id,

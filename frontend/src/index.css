@@ -173,8 +173,9 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--green-brigh
 .hint { color: var(--muted); font-size: 13px; text-align: center; line-height: 1.4; }
 
 /* --- pregled postavk --- */
-.edit-row { display: grid; grid-template-columns: 1fr 52px 84px 28px; gap: 8px; align-items: center; padding: 8px 10px; border-bottom: 1px solid var(--line); }
-.edit-row:last-child { border-bottom: 0; }
+.edit-row { display: grid; grid-template-columns: 1fr 40px 74px 28px 26px; gap: 6px; align-items: center; padding: 8px 10px; }
+.edit-item { border-bottom: 1px solid var(--line); }
+.edit-item:last-child { border-bottom: 0; }
 .edit-row input {
   width: 100%; background: transparent; border: 0; border-radius: 8px; padding: 8px 6px;
   color: var(--text); font: inherit; font-size: 15px;
@@ -183,7 +184,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--green-brigh
 .edit-row input.num { text-align: right; font-variant-numeric: tabular-nums; }
 .edit-row .qty { text-align: center; }
 .icon-btn { background: none; border: 0; color: var(--muted); padding: 4px; display: flex; }
-.edit-head { display: grid; grid-template-columns: 1fr 52px 84px 28px; gap: 8px; padding: 0 16px; font-size: 12px; color: var(--muted); }
+.edit-head { display: grid; grid-template-columns: 1fr 40px 74px 28px 26px; gap: 6px; padding: 0 16px; font-size: 12px; color: var(--muted); }
 .edit-head span:nth-child(2) { text-align: center; }
 .edit-head span:nth-child(3) { text-align: right; }
 
@@ -218,7 +219,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--green-brigh
 .person.active { color: var(--text); }
 .person.active .avatar { border-color: var(--green-bright); transform: scale(1.06); }
 .person .owed { font-variant-numeric: tabular-nums; color: var(--text); font-weight: 700; }
-.assign-hint { font-size: 14px; color: var(--muted); margin: -6px 2px 0; }
+.assign-hint { font-size: 14px; color: var(--muted); margin: 0; }
 .assign-hint b { color: var(--text); }
 
 .item { display: flex; align-items: stretch; border-bottom: 1px solid var(--line); }
@@ -315,3 +316,25 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--green-brigh
 label.btn { cursor: pointer; position: relative; }
 label.btn.disabled { opacity: 0.4; cursor: not-allowed; }
 label.btn:focus-within { outline: 2px solid var(--green-bright); outline-offset: 2px; }
+
+/* "Ostalo (3) dodeli: [AN] Ana" */
+.rest-btn { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
+.rest-btn > span:first-child { color: var(--muted); font-weight: 500; }
+.rest-who { display: inline-flex; align-items: center; gap: 6px; background: var(--surface); border-radius: 10px; padding: 3px 10px 3px 4px; }
+
+/* --- popust --- */
+.pct-btn { font-weight: 700; font-size: 15px; border-radius: 8px; width: 28px; height: 28px; justify-content: center; align-items: center; }
+.pct-btn.on { background: var(--green-soft); color: var(--green-bright); }
+.line-discount { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; padding: 0 12px 10px 16px; font-size: 13px; color: var(--muted); }
+.line-discount-price { margin-left: auto; color: var(--green-bright); font-weight: 700; font-variant-numeric: tabular-nums; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0; }
+.chip { border: 0; border-radius: 99px; padding: 6px 12px; background: var(--surface-strong); font-size: 13px; font-weight: 700; }
+.chip.on { background: var(--green); color: #fff; }
+.chip-input { width: 76px; border: 1.5px solid var(--surface-strong); background: transparent; border-radius: 99px; padding: 5px 10px; color: var(--text); font: inherit; font-size: 13px; }
+.chip-input:focus { border-color: var(--green-bright); outline: none; }
+.discount-card .big-label { margin-bottom: 0; }
+
+.assign-hint-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: -6px 2px 0; }
+.clear-btn { flex: none; display: inline-flex; align-items: center; gap: 5px; border: 0; border-radius: 99px; padding: 6px 11px; background: var(--surface); color: var(--muted); font-size: 13px; font-weight: 700; }
+.clear-btn:not(:disabled):hover { color: var(--red); }
+.clear-btn:disabled { opacity: 0.35; cursor: not-allowed; }
